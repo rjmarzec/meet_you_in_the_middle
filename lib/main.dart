@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 
 void main() => runApp(Home());
 
@@ -38,8 +39,38 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildLocationListPage() {
-    return Container(
-      child: Text('map'),
+    return ListView(
+      padding: EdgeInsets.all(8),
+      children: <Widget>[
+        Container(
+          height: 50,
+          //color: Colors.teal,
+          child: Row(
+            children: <Widget>[
+              Icon(Icons.pin_drop),
+              Expanded(
+                child: Text('Entry A'),
+              ),
+              FloatingActionButton(
+                onPressed: () {},
+              )
+            ],
+          ),
+        ),
+        Divider(
+          color: Colors.black,
+          indent: 8,
+          endIndent: 8,
+        ),
+        Container(
+          height: 50,
+          child: const Center(child: Text('Entry B')),
+        ),
+        Container(
+          height: 50,
+          child: const Center(child: Text('Entry C')),
+        ),
+      ],
     );
   }
 
