@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:meet_you_in_the_middle/location_manager.dart';
 import 'location.dart';
 
 void main() => runApp(Home());
@@ -18,6 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final LocationManager locationManager = new LocationManager();
   int _bottomNavBarIndex = 0;
   List<Widget> _bottomNavBarPages;
   List<String> _locations;
@@ -47,10 +49,11 @@ class _HomePageState extends State<HomePage> {
 
   void _buildBottomNavBarPages() {
     _bottomNavBarPages = [];
-    _bottomNavBarPages.add(_buildLocationListPage());
+    _bottomNavBarPages.add(_buildLocationListWidgets());
     _bottomNavBarPages.add(_buildMapPage());
   }
 
+  /*
   Widget _buildLocationListPage() {
     return ListView(
       padding: EdgeInsets.all(8),
@@ -94,6 +97,49 @@ class _HomePageState extends State<HomePage> {
         ),
       ],
     );
+  }
+  */
+
+  Widget _buildLocationListWidgets() {
+    List<Widget> returnWidgetList = new List();
+    for (int i = 0; i < locationManager.locationCount(); i++) {
+      print(locationManager.locationList[1].getName());
+      print(locationManager.locationCount());
+      print(i);
+      if (i != 0) {
+        returnWidgetList.add(
+          Divider(
+            color: Colors.black,
+            indent: 8,
+            endIndent: 8,
+          ),
+        );
+      }
+      returnWidgetList.add(
+        new Row(
+          children: <Widget>[
+            Icon(
+              Icons.pin_drop,
+              size: 36,
+            ),
+            Expanded(
+              child: Text(
+                locationManager.getLocationNameAt(i),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            FloatingActionButton(
+              child: Icon(Icons.close),
+              onPressed: () {},
+            )
+          ],
+        ),
+      );
+    }
+    return ListView(children: returnWidgetList);
   }
 
   Widget _buildMapPage() {

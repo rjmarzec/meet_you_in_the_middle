@@ -8,7 +8,9 @@ class Location {
     _findLatLong();
   }
 
-  void _findLatLong() {}
+  void _findLatLong() {
+    _locationIsValid = true;
+  }
 
   bool isValid() {
     return _locationIsValid;
