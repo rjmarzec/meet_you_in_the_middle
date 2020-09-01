@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:meet_you_in_the_middle/location_manager.dart';
-import 'location.dart';
+import 'location_manager.dart';
 
 void main() => runApp(Home());
 
@@ -22,11 +20,12 @@ class _HomePageState extends State<HomePage> {
   final LocationManager locationManager = new LocationManager();
   int _bottomNavBarIndex = 0;
   List<Widget> _bottomNavBarPages;
-  List<String> _locations;
+  List<String> _locationNames;
 
   @override
   Widget build(BuildContext context) {
     _buildBottomNavBarPages();
+    _loadLocations();
 
     return Scaffold(
       appBar: AppBar(
@@ -43,7 +42,9 @@ class _HomePageState extends State<HomePage> {
     return FloatingActionButton(
       backgroundColor: Colors.teal,
       child: Icon(Icons.add),
-      onPressed: () {},
+      onPressed: () {
+        _showLocationDialog();
+      },
     );
   }
 
@@ -53,58 +54,9 @@ class _HomePageState extends State<HomePage> {
     _bottomNavBarPages.add(_buildMapPage());
   }
 
-  /*
-  Widget _buildLocationListPage() {
-    return ListView(
-      padding: EdgeInsets.all(8),
-      children: <Widget>[
-        Container(
-          height: 50,
-          //color: Colors.teal,
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.pin_drop,
-                size: 36,
-              ),
-              Expanded(
-                child: Text(
-                  'Entry A',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              FloatingActionButton(
-                onPressed: () {},
-              )
-            ],
-          ),
-        ),
-        Divider(
-          color: Colors.black,
-          indent: 8,
-          endIndent: 8,
-        ),
-        Container(
-          height: 50,
-          child: const Center(child: Text('Entry B')),
-        ),
-        Container(
-          height: 50,
-          child: const Center(child: Text('Entry C')),
-        ),
-      ],
-    );
-  }
-  */
-
   Widget _buildLocationListWidgets() {
     List<Widget> returnWidgetList = new List();
     for (int i = 0; i < locationManager.locationCount(); i++) {
-      print(locationManager.locationList[1].getName());
-      print(locationManager.locationCount());
       print(i);
       if (i != 0) {
         returnWidgetList.add(
@@ -116,26 +68,34 @@ class _HomePageState extends State<HomePage> {
         );
       }
       returnWidgetList.add(
-        new Row(
-          children: <Widget>[
-            Icon(
-              Icons.pin_drop,
-              size: 36,
-            ),
-            Expanded(
-              child: Text(
-                locationManager.getLocationNameAt(i),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: new Row(
+            children: <Widget>[
+              Icon(
+                Icons.pin_drop,
+                size: 36,
+              ),
+              Expanded(
+                child: Text(
+                  locationManager.getLocationNameAt(i),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
-            ),
-            FloatingActionButton(
-              child: Icon(Icons.close),
-              onPressed: () {},
-            )
-          ],
+              FloatingActionButton(
+                child: Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    locationManager.removeLocationAt(i);
+                    _locationNames = locationManager.getLocationNames();
+                  });
+                },
+              )
+            ],
+          ),
         ),
       );
     }
@@ -190,7 +150,32 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Widget _buildLocationDialog() {
-    return Dialog();
+  void _showLocationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Alert Dialog title"),
+          content: new Text("Alert Dialog body"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                setState(() {
+                  Navigator.of(context).pop();
+                  //locationManager.addLocation('test');
+                  //_loadLocations();
+                });
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _loadLocations() {
+    return;
   }
 }
