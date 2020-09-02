@@ -4,10 +4,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationManager {
   List<Location> _locationList;
+  SharedPreferences prefs;
 
   LocationManager() {
     _locationList = new List<Location>();
+  }
+
+  Future<bool> loadSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
     _loadLocations();
+    return true;
   }
 
   List<Location> getLocations() {
@@ -63,14 +69,12 @@ class LocationManager {
     return _locationList.length;
   }
 
-  void _loadLocations() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadLocations() {
     Iterable l = json.decode(prefs.getString('locations'));
     _locationList = (l as List).map((i) => Location.fromJson(i)).toList();
   }
 
-  void _saveLocations() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _saveLocations() {
     prefs.setString('locations', json.encode(_locationList));
   }
 }

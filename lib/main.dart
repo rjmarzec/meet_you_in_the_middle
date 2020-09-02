@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _buildBottomNavBarPages();
+    _buildPages();
     _loadLocations();
 
     return Scaffold(
@@ -31,35 +31,16 @@ class _HomePageState extends State<HomePage> {
         title: Text('Meet You In the Middle'),
       ),
       body: _bottomNavBarPages[_bottomNavBarIndex],
-      floatingActionButton: _buildFloatingActionButton(),
+      floatingActionButton: _buildFloatingActionButton(locationManager),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: _buildBottomAppBar(),
     );
   }
 
-  FloatingActionButton _buildFloatingActionButton() {
-    return FloatingActionButton(
-      backgroundColor: Colors.teal,
-      child: Icon(Icons.add),
-      onPressed: () {
-        setState(() {
-          locationManager.addLocation('testLocation');
-          //_showLocationDialog();
-        });
-      },
-    );
-  }
-
-  void _buildBottomNavBarPages() {
-    _bottomNavBarPages = [];
-    _bottomNavBarPages.add(_buildLocationListWidgets());
-    _bottomNavBarPages.add(_buildMapPage());
-  }
-
   Widget _buildLocationListWidgets() {
     List<Widget> returnWidgetList = new List();
     for (int i = 0; i < locationManager.locationCount(); i++) {
-      print(i);
+      //print(i);
       if (i != 0) {
         returnWidgetList.add(
           Divider(
@@ -94,13 +75,52 @@ class _HomePageState extends State<HomePage> {
                     locationManager.removeLocationAt(i);
                   });
                 },
-              )
+              ),
             ],
           ),
         ),
       );
     }
     return ListView(children: returnWidgetList);
+  }
+
+  Widget _buildLocationListFuture() {
+    return FutureBuilder<bool>(
+      future: locationManager.loadSharedPreferences(),
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        if (snapshot.hasData) {
+          return _buildLocationListWidgets();
+        } /*else if (snapshot.hasError) {
+          return _buildLocationErrorWidget();
+        }*/
+        else {
+          return _buildLocationLoadingWidget();
+        }
+      },
+    );
+  }
+
+  Widget _buildLocationLoadingWidget() {
+    return CircularProgressIndicator();
+  }
+
+  FloatingActionButton _buildFloatingActionButton(LocationManager lm) {
+    return FloatingActionButton(
+      backgroundColor: Colors.teal,
+      child: Icon(Icons.add),
+      onPressed: () {
+        setState(() {
+          lm.addLocation('testLocation');
+          //_showLocationDialog();
+        });
+      },
+    );
+  }
+
+  void _buildPages() {
+    _bottomNavBarPages = [];
+    _bottomNavBarPages.add(_buildLocationListFuture());
+    _bottomNavBarPages.add(_buildMapPage());
   }
 
   Widget _buildMapPage() {
