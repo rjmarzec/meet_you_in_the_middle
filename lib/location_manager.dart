@@ -1,25 +1,13 @@
 import 'location.dart';
-import 'package:get/state_manager.dart';
-import 'package:get_storage/get_storage.dart';
-
-void main() async {
-  await GetStorage.init();
-}
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationManager {
-  final storage = GetStorage();
-  List<Location> _locationList = new List<Location>();
+  List<Location> _locationList;
 
   LocationManager() {
-    main();
-
-    _readStoredLocations();
-
-    // Not necessary, should be removed when testing is done
-    addLocation('Test1');
-    addLocation('Test2');
-    addLocation('Test3');
-    addLocation('Test4');
+    _locationList = new List<Location>();
+    _loadLocations();
   }
 
   List<Location> getLocations() {
@@ -34,15 +22,32 @@ class LocationManager {
     return locationNameList;
   }
 
+  List<double> getLocationLats() {
+    List<double> locationLatList = new List<double>();
+    for (var location in _locationList) {
+      locationLatList.add(location.getLatitude());
+    }
+    return locationLatList;
+  }
+
+  List<double> getLocationLongs() {
+    List<double> getLocationLongs = new List<double>();
+    for (var location in _locationList) {
+      getLocationLongs.add(location.getLongitude());
+    }
+    return getLocationLongs;
+  }
+
   String getLocationNameAt(int indexIn) {
     return _locationList[indexIn].getName();
   }
 
   bool addLocation(String nameIn) {
-    Location tempLocation = new Location(nameIn);
-    if (tempLocation.isValid()) {
-      _locationList.add(tempLocation);
-      _updateStoredLocations();
+    Location locationToAdd = new Location(nameIn);
+    if (locationToAdd.isValid()) {
+      _locationList.add(locationToAdd);
+      _saveLocations();
+      _loadLocations();
       return true;
     } else {
       return false;
@@ -51,21 +56,21 @@ class LocationManager {
 
   void removeLocationAt(int indexIn) {
     _locationList.removeAt(indexIn);
-    _updateStoredLocations();
+    _saveLocations();
   }
 
   int locationCount() {
     return _locationList.length;
   }
 
-  void _updateStoredLocations() {
-    storage.write('locations', _locationList);
+  void _loadLocations() async {
+    final prefs = await SharedPreferences.getInstance();
+    Iterable l = json.decode(prefs.getString('locations'));
+    _locationList = (l as List).map((i) => Location.fromJson(i)).toList();
   }
 
-  void _readStoredLocations() {
-    if (!storage.hasData('locations')) {
-      _updateStoredLocations();
-    }
-    _locationList = storage.read('locations');
+  void _saveLocations() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('locations', json.encode(_locationList));
   }
 }

@@ -20,7 +20,6 @@ class _HomePageState extends State<HomePage> {
   final LocationManager locationManager = new LocationManager();
   int _bottomNavBarIndex = 0;
   List<Widget> _bottomNavBarPages;
-  List<String> _locationNames;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +42,10 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.teal,
       child: Icon(Icons.add),
       onPressed: () {
-        _showLocationDialog();
+        setState(() {
+          locationManager.addLocation('testLocation');
+          //_showLocationDialog();
+        });
       },
     );
   }
@@ -90,7 +92,6 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   setState(() {
                     locationManager.removeLocationAt(i);
-                    _locationNames = locationManager.getLocationNames();
                   });
                 },
               )
