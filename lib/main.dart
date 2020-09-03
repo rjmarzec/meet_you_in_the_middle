@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'location_manager.dart';
 import 'location_page.dart';
 import 'map_page.dart';
+import 'api_keys.dart';
+import 'package:google_place/google_place.dart';
 
 void main() => runApp(Home());
 
@@ -30,6 +32,10 @@ class _HomePageState extends State<HomePage> {
   // Some variables used for keeping track of what page the user is currently on
   int _bottomNavBarIndex = 0;
   List<Widget> _bottomNavBarPages;
+
+  // Setup the google places API access for use when adding locations
+  final GooglePlace googlePlace = GooglePlace(ApiKeys.googlePlacesKey);
+  List<AutocompletePrediction> predictions = [];
 
   @override
   Widget build(BuildContext context) {
@@ -63,37 +69,86 @@ class _HomePageState extends State<HomePage> {
       child: Icon(Icons.add),
       onPressed: () {
         setState(() {
-          _lm.addLocation('testLocation');
-          //_showLocationDialog();
+          _showLocationDialog();
         });
       },
     );
   }
 
-  // Opens the dialog for users to input custom locations
+  // Opens the dialog for users to input custom locations through google
+  // autocomplete
   void _showLocationDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
-          title: new Text("Alert Dialog title"),
-          content: new Text("Alert Dialog body"),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Close"),
-              onPressed: () {
-                setState(() {
-                  Navigator.of(context).pop();
-                  //locationManager.addLocation('test');
-                  //_loadLocations();
-                });
-              },
-            ),
-          ],
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  TextField(
+                    decoration: InputDecoration(
+                      labelText: "Search",
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black54,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        setState(() {
+                          autoCompleteSearch(value);
+                        });
+                      } else {
+                        if (predictions.length > 0 && mounted) {
+                          setState(() {
+                            predictions = [];
+                          });
+                        }
+                      }
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  _buildAutocompleteResponseList(),
+                ],
+              );
+            },
+          ),
         );
       },
     );
+  }
+
+  // Build a list of widgets that represent the google autocomplete search
+  // results taken from the predictions list
+  Widget _buildAutocompleteResponseList() {
+    List<Widget> returnWidgetList = new List<Widget>();
+    for (int i = 0; i < predictions.length; i++) {
+      returnWidgetList.add(Text(predictions[i].description));
+    }
+    return Column(children: returnWidgetList);
+  }
+
+  // Run a google autocomplete search for the given string input and update
+  // the predictions list once the result returns
+  void autoCompleteSearch(String value) async {
+    var result = await googlePlace.autocomplete.get(value);
+    if (result != null && result.predictions != null && mounted) {
+      setState(() {
+        predictions = result.predictions;
+      });
+    }
   }
 
   // Builds the bottom app bar which lets the player navigate which page they
