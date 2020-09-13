@@ -1,3 +1,5 @@
+import 'package:geocoder/geocoder.dart';
+
 import 'location.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,26 +37,27 @@ class LocationManager {
   }
 
   // Getter for the latitudes of locations in the list of locations
-  List<double> getLocationLats() {
-    List<double> locationLatList = new List<double>();
+  List<Coordinates> getLocationCoordinates() {
+    List<Coordinates> locationCoordinatesList = new List<Coordinates>();
     for (var location in _locationList) {
-      locationLatList.add(location.getLatitude());
+      locationCoordinatesList.add(location.getCoordinates());
     }
-    return locationLatList;
+    return locationCoordinatesList;
   }
 
-  // Getter for the longitudes of locations in the list of locations
-  List<double> getLocationLongs() {
-    List<double> getLocationLongs = new List<double>();
-    for (var location in _locationList) {
-      getLocationLongs.add(location.getLongitude());
-    }
-    return getLocationLongs;
+  // Returns the number of locations stored in the location list
+  int locationCount() {
+    return _locationList.length;
   }
 
   // Gets the name of a location at a specific index in the location list
   String getLocationNameAt(int indexIn) {
     return _locationList[indexIn].getName();
+  }
+
+  // Gets the coordinates of a location at a specific index in the location list
+  Coordinates getLocationCoordinatesAt(int indexIn) {
+    return _locationList[indexIn].getCoordinates();
   }
 
   // Adds a location to the location list and saves it to SharedPreferences.
@@ -76,11 +79,6 @@ class LocationManager {
   void removeLocationAt(int indexIn) {
     _locationList.removeAt(indexIn);
     _saveLocations();
-  }
-
-  // Returns the number of locations stored in the location list
-  int locationCount() {
-    return _locationList.length;
   }
 
   // Pull the list of locations from SharedPreferences

@@ -1,21 +1,29 @@
+import 'package:geocoder/geocoder.dart';
+
 class Location {
   final String _name;
-  double _latitude, _longitude;
+  Coordinates _coordinates;
   bool _locationIsValid;
 
   // Every location has a name and related latitude and longitude
   Location(String nameIn) : _name = nameIn {
     // Since only a name is taken as input, we need to find the latitude and
     // longitude
-    _findLatLong();
+    _findCoordinates();
   }
 
   // Find the location's latitude and longitude. If no coordinates cannot be
   // found be cause the location is not valid, mark the location
-  void _findLatLong() {
-    _latitude = 0;
-    _longitude = 0;
+  void _findCoordinates() async {
     _locationIsValid = true;
+    var _geocoderResult = await Geocoder.local.findAddressesFromQuery(_name);
+    if (_geocoderResult.isNotEmpty) {
+      _coordinates = _geocoderResult.first.coordinates;
+      _locationIsValid = true;
+    } else {
+      _coordinates = new Coordinates(-180.0, -180.0);
+      _locationIsValid = false;
+    }
   }
 
   // Return whether or not the location is valid and can be used
@@ -29,27 +37,20 @@ class Location {
   }
 
   // Getter for the location latitude
-  double getLatitude() {
-    return _latitude;
-  }
-
-  // Getter for the location longitude
-  double getLongitude() {
-    return _longitude;
+  Coordinates getCoordinates() {
+    return _coordinates;
   }
 
   // Convert the location to a Json string so that it can get saved using
   // SharedPreferences
   Map<String, dynamic> toJson() => {
         'name': _name,
-        'lat': _latitude,
-        'long': _longitude,
+        'cooridnates': _coordinates,
       };
 
   // Convert the location from a Json string to recover it from how it gets
   // stored in SharedPreferences
   Location.fromJson(Map<String, dynamic> json)
       : _name = json['name'],
-        _latitude = json['lat'],
-        _longitude = json['long'];
+        _coordinates = json['coordinates'];
 }
