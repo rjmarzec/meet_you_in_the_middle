@@ -60,5 +60,6 @@ class MapPage {
           markerId: MarkerId(_lm.getLocationNameAt(i)),
           position: LatLng(locationLatitude, locationLongitude)));
     }
+    return markerSet;
   }
 }
