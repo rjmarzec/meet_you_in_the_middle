@@ -85,8 +85,15 @@ class LocationManager {
 
   // Pull the list of locations from SharedPreferences
   void _loadLocations() {
-    Iterable l = json.decode(prefs.getString('locations'));
-    _locationList = (l as List).map((i) => Location.fromJson(i)).toList();
+    String prefsResult = prefs.getString('locations');
+    if(prefsResult != null)
+    {
+      Iterable l = json.decode(prefsResult);
+      _locationList = (l as List).map((i) => Location.fromJson(i)).toList();
+    }
+    else{
+      _locationList = [];
+    }
   }
 
   // Saves the current location list to SharedPreferences

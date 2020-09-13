@@ -13,7 +13,7 @@ class MapPage {
   // Builds the map page
   Widget build() {
     return Container(
-      child: Text('we stan jun'),
+      child: Text('map to be implemented at a later date'),
     );
   }
 }

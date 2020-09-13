@@ -82,46 +82,56 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          contentPadding: EdgeInsets.all(16.0),
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: "Search",
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.blue,
-                          width: 2.0,
+              return Container(
+                width: 300,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextField(
+                      decoration: InputDecoration(
+                        labelText: "Search",
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.blue,
+                            width: 2.0,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.black54,
+                            width: 2.0,
+                          ),
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.black54,
-                          width: 2.0,
-                        ),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      if (value.isNotEmpty) {
-                        setState(() {
-                          autoCompleteSearch(value);
-                        });
-                      } else {
-                        if (predictions.length > 0 && mounted) {
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
                           setState(() {
-                            predictions = [];
+                            autoCompleteSearch(value);
                           });
+                        } else {
+                          if (predictions.length > 0 && mounted) {
+                            setState(() {
+                              predictions = [];
+                            });
+                          }
                         }
-                      }
-                    },
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  _buildAutocompleteResponseList(),
-                ],
+                      },
+                    ),
+                    _buildAutocompleteResponseList(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        FlatButton(
+                          onPressed: () {Navigator.pop(context);},
+                          child: Text('Close'),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               );
             },
           ),
@@ -135,7 +145,23 @@ class _HomePageState extends State<HomePage> {
   Widget _buildAutocompleteResponseList() {
     List<Widget> returnWidgetList = new List<Widget>();
     for (int i = 0; i < predictions.length; i++) {
-      returnWidgetList.add(Text(predictions[i].description));
+      String locationName = predictions[i].description;
+      returnWidgetList.add(OutlineButton(
+        child: Text(
+          locationName,
+          textAlign: TextAlign.center,
+        ),
+        onPressed: () {
+          setState(
+            () {
+              _lm.addLocation(locationName);
+              predictions = [];
+              Navigator.pop(context);
+            },
+          );
+        },
+      ));
+      //returnWidgetList.add(Text(predictions[i].description));
     }
     return Column(children: returnWidgetList);
   }
