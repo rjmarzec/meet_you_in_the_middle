@@ -8,7 +8,11 @@
 .buildlog/
 .history
 .svn/
+
+# API Related
 lib/api_keys.dart
+app/src/main/AndroidManifest.xml
+ios/Runner/AppDelegate.swift
 
 # IntelliJ related
 *.iml
