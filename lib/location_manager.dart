@@ -60,18 +60,15 @@ class LocationManager {
     return _locationList[indexIn].getCoordinates();
   }
 
+  // Gets whether the location is valid at a specific index in the location list
+  bool getLocationCoordinatesReadyAt(int indexIn) {
+    return _locationList[indexIn].coordinatesAreReady();
+  }
+
   // Adds a location to the location list and saves it to SharedPreferences.
-  // If the given location is not a valid location, it will not be added,
-  // and the function will return false
-  bool addLocation(String nameIn) {
-    Location locationToAdd = new Location(nameIn);
-    if (locationToAdd.isValid()) {
-      _locationList.add(locationToAdd);
-      _saveLocations();
-      return true;
-    } else {
-      return false;
-    }
+  void addLocation(String nameIn) {
+    _locationList.add(new Location(nameIn));
+    _saveLocations();
   }
 
   // Removes the location at the given index and then saves the location list
@@ -81,21 +78,25 @@ class LocationManager {
     _saveLocations();
   }
 
+  void setLocationList(List<Location> locationListIn) {
+    _locationList = locationListIn;
+    _saveLocations();
+  }
+
   // Pull the list of locations from SharedPreferences
   void _loadLocations() {
     String prefsResult = prefs.getString('locations');
-    if(prefsResult != null)
-    {
+    if (prefsResult != null) {
       Iterable l = json.decode(prefsResult);
       _locationList = (l as List).map((i) => Location.fromJson(i)).toList();
-    }
-    else{
+    } else {
       _locationList = [];
     }
   }
 
   // Saves the current location list to SharedPreferences
   void _saveLocations() {
+    print(_locationList[0].toJson());
     prefs.setString('locations', json.encode(_locationList));
   }
 }

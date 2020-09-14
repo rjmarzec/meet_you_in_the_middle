@@ -41,15 +41,33 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     _buildPages();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Meet You In the Middle'),
-      ),
-      body: _bottomNavBarPages[_bottomNavBarIndex],
-      floatingActionButton: _buildFloatingActionButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: _buildBottomAppBar(),
+    return FutureBuilder<bool>(
+      future: _lm.loadSharedPreferences(),
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        if (snapshot.hasData) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Meet You In the Middle'),
+            ),
+            body: _bottomNavBarPages[_bottomNavBarIndex],
+            floatingActionButton: _buildFloatingActionButton(),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerDocked,
+            bottomNavigationBar: _buildBottomAppBar(),
+          );
+        } else if (snapshot.hasError) {
+          return Text('error! please reload');
+          // TODO: Build an error page
+          //return _buildLocationErrorWidget();
+        } else {
+          return _buildLoadingWidget();
+        }
+      },
     );
+  }
+
+  Widget _buildLoadingWidget() {
+    return CircularProgressIndicator();
   }
 
   // Build the location and map pages
@@ -125,7 +143,9 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         FlatButton(
-                          onPressed: () {Navigator.pop(context);},
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
                           child: Text('Close'),
                         )
                       ],

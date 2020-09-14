@@ -15,28 +15,7 @@ class LocationPage {
   // SharedPreferences to get stored information is asynchronous, so while
   // that is still running, show a loading a wheel
   Widget build() {
-    return FutureBuilder<bool>(
-      // The future completes when the location manager has finished getting
-      // and instance of SharedPreferences
-      future: _lm.loadSharedPreferences(),
-      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-        // If the future has completed, build the normal location page
-        if (snapshot.hasData) {
-          return _buildLocationListWidgets();
-        }
-        // If there was an error pulling the data, tell the user to reload the
-        // app
-        else if (snapshot.hasError) {
-          return Text('error! please reload');
-          // TODO: Build an error page
-          //return _buildLocationErrorWidget();
-        }
-        // While the future is still in progress, show a loading screen
-        else {
-          return _buildLoadingWidget();
-        }
-      },
-    );
+    return _buildLocationListWidgets();
   }
 
   // Build the main location page from a list of location widgets. For each
