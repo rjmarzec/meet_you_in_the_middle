@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'location_manager.dart';
 import 'location_page.dart';
 import 'map_page.dart';
-import 'api_keys.dart';
-import 'package:google_place/google_place.dart';
+import 'add_location_dialog.dart';
 
 void main() => runApp(Home());
 
@@ -21,185 +20,125 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // LocationManager keeps track of all of your locations in one place
-  final LocationManager _lm = new LocationManager();
+  // different widgets are split up between classes to make organization cleaner
+  LocationManager locationManager = LocationManager();
 
-  // LocationPage and MapPage are classes to hold code related to building
-  // the pages they are named after
-  LocationPage locationPage;
-  MapPage mapPage;
-
-  // Some variables used for keeping track of what page the user is currently on
+  // keep track of which page the user is currently looking at
   int _bottomNavBarIndex = 0;
-  List<Widget> _bottomNavBarPages;
-
-  // Setup the google places API access for use when adding locations
-  final GooglePlace googlePlace = GooglePlace(ApiKeys.googlePlacesKey);
-  List<AutocompletePrediction> predictions = [];
 
   @override
   Widget build(BuildContext context) {
-    _buildPages();
+    Future<bool> _sharedPrefsFuture = locationManager.loadSharedPreferences();
+    locationManager.publishLocationUpdate = _updateLocationsDisplayedCallback;
 
     return FutureBuilder<bool>(
-      future: _lm.loadSharedPreferences(),
+      future: _sharedPrefsFuture,
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        // while we wait for the shared preferences to load,
         if (snapshot.hasData) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Meet You In the Middle'),
-            ),
-            body: _bottomNavBarPages[_bottomNavBarIndex],
-            floatingActionButton: _buildFloatingActionButton(),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerDocked,
-            bottomNavigationBar: _buildBottomAppBar(),
-          );
+          return _buildApp();
         } else if (snapshot.hasError) {
-          return Text('error! please reload');
-          // TODO: Build an error page
-          //return _buildLocationErrorWidget();
+          return _buildSharedPrefErrorWidget();
         } else {
-          return _buildLoadingWidget();
+          return _buildSharedPrefLoadingWidget();
         }
       },
     );
   }
 
-  Widget _buildLoadingWidget() {
-    return CircularProgressIndicator();
+  Widget _buildSharedPrefLoadingWidget() {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              child: CircularProgressIndicator(),
+              width: 60,
+              height: 60,
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 16),
+              child: Text('Loading locations...'),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
-  // Build the location and map pages
-  void _buildPages() {
-    locationPage = LocationPage(_lm, _setStateCallback);
-    mapPage = MapPage(_lm, _setStateCallback);
-
-    _bottomNavBarPages = [];
-    _bottomNavBarPages.add(locationPage.build());
-    _bottomNavBarPages.add(mapPage.build());
+  Widget _buildSharedPrefErrorWidget() {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              Icons.error_outline,
+              color: Colors.red,
+              size: 60,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Text('Something went wrong!\nPlease restart the app.'),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
-  // Build a button that lets users add locations to the location list
-  FloatingActionButton _buildFloatingActionButton() {
+  Widget _buildApp() {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Meet You In the Middle'),
+      ),
+      body: _buildSelectedPage(),
+      floatingActionButton: _buildAddLocationButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: _buildPageSelectionAppBar(),
+    );
+  }
+
+  Widget _buildSelectedPage() {
+    if (_bottomNavBarIndex == 0) {
+      return _buildLocationsPage();
+    }
+    return _buildMapPage();
+  }
+
+  Widget _buildLocationsPage() {
+    return LocationPage();
+  }
+
+  Widget _buildMapPage() {
+    return Container(
+      child: Center(
+        child: Text("map"),
+      ),
+    );
+  }
+
+  FloatingActionButton _buildAddLocationButton() {
     return FloatingActionButton(
       backgroundColor: Colors.teal,
       child: Icon(Icons.add),
       onPressed: () {
-        setState(() {
-          _showLocationDialog();
-        });
+        showDialog(
+          context: context,
+          builder: (_) {
+            return AddLocationDialog();
+          },
+        ).then((_) => setState(() {}));
       },
     );
   }
 
-  // Opens the dialog for users to input custom locations through google
-  // autocomplete
-  void _showLocationDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.all(16.0),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Container(
-                width: 300,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: "Search",
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.blue,
-                            width: 2.0,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.black54,
-                            width: 2.0,
-                          ),
-                        ),
-                      ),
-                      onChanged: (value) {
-                        if (value.isNotEmpty) {
-                          setState(() {
-                            autoCompleteSearch(value);
-                          });
-                        } else {
-                          if (predictions.length > 0 && mounted) {
-                            setState(() {
-                              predictions = [];
-                            });
-                          }
-                        }
-                      },
-                    ),
-                    _buildAutocompleteResponseList(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        FlatButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text('Close'),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  // Build a list of widgets that represent the google autocomplete search
-  // results taken from the predictions list
-  Widget _buildAutocompleteResponseList() {
-    List<Widget> returnWidgetList = new List<Widget>();
-    for (int i = 0; i < predictions.length; i++) {
-      String locationName = predictions[i].description;
-      returnWidgetList.add(OutlineButton(
-        child: Text(
-          locationName,
-          textAlign: TextAlign.center,
-        ),
-        onPressed: () {
-          setState(
-            () {
-              _lm.addLocation(locationName);
-              predictions = [];
-              Navigator.pop(context);
-            },
-          );
-        },
-      ));
-      //returnWidgetList.add(Text(predictions[i].description));
-    }
-    return Column(children: returnWidgetList);
-  }
-
-  // Run a google autocomplete search for the given string input and update
-  // the predictions list once the result returns
-  void autoCompleteSearch(String value) async {
-    var result = await googlePlace.autocomplete.get(value);
-    if (result != null && result.predictions != null && mounted) {
-      setState(() {
-        predictions = result.predictions;
-      });
-    }
-  }
-
-  // Builds the bottom app bar which lets the player navigate which page they
+  // builds the bottom app bar which lets the player navigate which page they
   // are currently on
-  BottomAppBar _buildBottomAppBar() {
+  BottomAppBar _buildPageSelectionAppBar() {
     return BottomAppBar(
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -213,8 +152,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Builds button on the bottom app bar used to navigate between the pages.
-  // Button look and settings are specified by the input parameters
+  // builds button on the bottom app bar used to navigate between the pages.
+  // button look and settings are specified by the input parameters
   Widget _buildBottomAppBarButton(IconData iconIn, String textIn, int indexIn) {
     Color buttonColor =
         (_bottomNavBarIndex == indexIn) ? Colors.orange[600] : Colors.grey[900];
@@ -246,7 +185,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Changes the page to the respective page of the app bar button that was
+  // changes the page to the respective page of the app bar button that was
   // tapped
   void _onBottomAppBarTapped(int itemIndex) {
     setState(() {
@@ -254,7 +193,5 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // Used as a callback to be able to call setState() {} in classes in other
-  // files that would otherwise not be able to
-  void _setStateCallback() => setState(() {});
+  void _updateLocationsDisplayedCallback() => setState(() {});
 }

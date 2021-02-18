@@ -2,14 +2,15 @@ import 'package:geocoder/geocoder.dart';
 
 class Location {
   final String _name;
-  Coordinates _coordinates;
-  bool _coordinatesAreReady;
+  final Coordinates _coordinates;
+  bool _isFavorite;
 
-  // Every location has a name and related latitude and longitude
-  Location(String nameIn)
+  // every location has a name, a related latitude & longitude, and may be a
+  // user's favorite
+  Location(String nameIn, Coordinates coordinatesIn)
       : _name = nameIn,
-        _coordinatesAreReady = false,
-        _coordinates = new Coordinates(0, 0);
+        _coordinates = coordinatesIn,
+        _isFavorite = false;
 
   // Getter for the location name
   String getName() {
@@ -21,27 +22,23 @@ class Location {
     return _coordinates;
   }
 
-  void setCoordinates(Coordinates coordinatesIn) {
-    _coordinates = coordinatesIn;
-    _coordinatesAreReady = true;
+  bool getIsFavorite() {
+    return _isFavorite;
   }
 
-  bool coordinatesAreReady() {
-    return _coordinatesAreReady;
-  }
-
-  // Convert the location to a Json string so that it can get saved using
+  // convert the location to a Json string so that it can get saved using
   // SharedPreferences
   Map<String, dynamic> toJson() => {
         'name': _name,
-        //'coordinates': _coordinates,
-        'coordinatesAreReady': _coordinatesAreReady
+        'latitude': _coordinates.latitude,
+        'longitude': _coordinates.longitude,
+        'isFavorite': _isFavorite
       };
 
-  // Convert the location from a Json string to recover it from how it gets
+  // convert the location from a Json string to recover it from how it gets
   // stored in SharedPreferences
   Location.fromJson(Map<String, dynamic> json)
       : _name = json['name'],
-        //_coordinates = json['coordinates'],
-        _coordinatesAreReady = json['coordinatesAreReady'];
+        _coordinates = Coordinates(json['latitude'], json['longitude']),
+        _isFavorite = json['isFavorite'];
 }

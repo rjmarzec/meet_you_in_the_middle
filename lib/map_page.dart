@@ -6,6 +6,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'location.dart';
 
 class MapPage {
+  MapPage() {}
+}
+
+/*
+class MapPage {
   LocationManager _lm;
   VoidCallback _parentSetState;
 
@@ -34,10 +39,10 @@ class MapPage {
   }
 
   Future<bool> _loadLocationCoordinates() async {
-    print('1');
     List<Location> locationList = _lm.getLocations();
-    print(locationList[0].coordinatesAreReady());
     for (int i = 0; i < _lm.locationCount(); i++) {
+      print(locationList[i].getName());
+      print(locationList[i].getCoordinates().toString());
       if (!locationList[i].coordinatesAreReady()) {
         var addresses = await Geocoder.local
             .findAddressesFromQuery(locationList[i].getName());
@@ -109,3 +114,4 @@ class MapPage {
     return CircularProgressIndicator();
   }
 }
+*/

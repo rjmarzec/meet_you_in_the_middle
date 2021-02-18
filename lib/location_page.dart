@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'location_manager.dart';
 
-class LocationPage {
-  LocationManager _lm;
-  VoidCallback _parentSetState;
+class LocationPage extends StatefulWidget {
+  @override
+  LocationPageState createState() => new LocationPageState();
+}
 
-  // Store the location manager and a callback function that calls setState()
-  // to use to update the UI when a location is removed
-  LocationPage(LocationManager lmIn, VoidCallback parentSetStateIn)
-      : _lm = lmIn,
-        _parentSetState = parentSetStateIn;
+class LocationPageState extends State<LocationPage> {
+  // a reference to our location manager, which is where we pull our list of
+  // locations from
+  final LocationManager locationManager = LocationManager();
 
-  // Use a future to build the location page. We use a future because using
-  // SharedPreferences to get stored information is asynchronous, so while
-  // that is still running, show a loading a wheel
-  Widget build() {
+  @override
+  Widget build(BuildContext context) {
     return _buildLocationListWidgets();
   }
 
@@ -22,52 +20,44 @@ class LocationPage {
   // location, build a list item, and separate the next item using a divider
   Widget _buildLocationListWidgets() {
     List<Widget> returnWidgetList = new List();
-    for (int i = 0; i < _lm.locationCount(); i++) {
-      if (i != 0) {
-        returnWidgetList.add(
-          Divider(
-            color: Colors.black,
-            indent: 8,
-            endIndent: 8,
-          ),
-        );
-      }
+    for (int i = 0; i < locationManager.locationCount(); i++) {
       returnWidgetList.add(
         Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: new Row(
-            children: <Widget>[
-              Icon(
-                Icons.pin_drop,
-                size: 36,
-              ),
-              Expanded(
-                child: Text(
-                  _lm.getLocationNameAt(i),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+          padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0.0),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: new Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.pin_drop,
+                    size: 36,
                   ),
-                ),
+                  Expanded(
+                    child: Text(
+                      locationManager.getLocationAt(i).getName(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        locationManager.removeLocationAt(i);
+                        locationManager.publishLocationUpdate();
+                      });
+                    },
+                  ),
+                ],
               ),
-              FloatingActionButton(
-                child: Icon(Icons.close),
-                onPressed: () {
-                  _lm.removeLocationAt(i);
-                  _parentSetState();
-                },
-              ),
-            ],
+            ),
           ),
         ),
       );
     }
     return ListView(children: returnWidgetList);
-  }
-
-  // Build a loading circle to show while still waiting to get an instance of
-  // SharedPreferences
-  Widget _buildLoadingWidget() {
-    return CircularProgressIndicator();
   }
 }
