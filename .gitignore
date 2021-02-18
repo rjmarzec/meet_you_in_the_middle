@@ -11,7 +11,7 @@
 
 # API Related
 lib/api_keys.dart
-app/src/main/AndroidManifest.xml
+android/app/src/main/AndroidManifest.xml
 ios/Runner/AppDelegate.swift
 
 # IntelliJ related
