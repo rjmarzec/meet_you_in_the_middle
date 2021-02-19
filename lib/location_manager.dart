@@ -51,12 +51,25 @@ class LocationManager {
     // use a geocoder to get coordinates for the addresses users enter
     var addresses = await Geocoder.local.findAddressesFromQuery(locationName);
     Coordinates addressCoordinates = addresses.first.coordinates;
-    Location newLocation = Location(locationName, addressCoordinates);
+    Location newLocation = Location(locationName, addressCoordinates,
+        _colorFromCoordinates(addressCoordinates));
 
     // once the location is constructed, add it to the location list and then
     // update the stored shared preferences
     _locationList.add(newLocation);
     _saveLocations();
+  }
+
+  Color _colorFromCoordinates(Coordinates coordinates) {
+    // to make the app more fun, each location has a unique color assigned.
+    // one way to approach this is to make an RBG codes using a sort of hash
+    // from the latitudes and longitudes of each color, computed as shown
+    double latSquared = coordinates.latitude * coordinates.latitude;
+    double longSquared = coordinates.longitude * coordinates.longitude;
+    int red = ((100 * latSquared * latSquared + 100)).round() % 160 + 16;
+    int green = ((100 * longSquared * longSquared + 100)).round() % 160 + 16;
+    int blue = ((100 * latSquared * longSquared + 100)).round() % 160 + 16;
+    return Color.fromRGBO(red, green, blue, 1.0);
   }
 
   void _saveLocations() {

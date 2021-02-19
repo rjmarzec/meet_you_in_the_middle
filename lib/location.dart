@@ -1,25 +1,31 @@
+import 'package:flutter/cupertino.dart';
 import 'package:geocoder/geocoder.dart';
+import 'package:flutter/material.dart';
 
 class Location {
   final String _name;
   final Coordinates _coordinates;
+  final Color _color;
   bool _isFavorite;
 
   // every location has a name, a related latitude & longitude, and may be a
   // user's favorite
-  Location(String nameIn, Coordinates coordinatesIn)
+  Location(String nameIn, Coordinates coordinatesIn, Color colorIn)
       : _name = nameIn,
         _coordinates = coordinatesIn,
+        _color = colorIn,
         _isFavorite = false;
 
-  // Getter for the location name
   String getName() {
     return _name;
   }
 
-  // Getter for the location latitude
   Coordinates getCoordinates() {
     return _coordinates;
+  }
+
+  Color getColor() {
+    return _color;
   }
 
   bool getIsFavorite() {
@@ -32,6 +38,9 @@ class Location {
         'name': _name,
         'latitude': _coordinates.latitude,
         'longitude': _coordinates.longitude,
+        'colorRed': _color.red,
+        'colorGreen': _color.green,
+        'colorBlue': _color.blue,
         'isFavorite': _isFavorite
       };
 
@@ -40,5 +49,7 @@ class Location {
   Location.fromJson(Map<String, dynamic> json)
       : _name = json['name'],
         _coordinates = Coordinates(json['latitude'], json['longitude']),
+        _color = Color.fromRGBO(
+            json['colorRed'], json['colorGreen'], json['colorBlue'], 1.0),
         _isFavorite = json['isFavorite'];
 }

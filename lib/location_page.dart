@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'location_manager.dart';
 
 class LocationPage extends StatefulWidget {
@@ -29,10 +30,15 @@ class LocationPageState extends State<LocationPage> {
               padding: const EdgeInsets.all(8.0),
               child: new Row(
                 children: <Widget>[
-                  Icon(
-                    Icons.pin_drop,
-                    size: 36,
+                  Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Icon(
+                      Icons.pin_drop,
+                      size: 32,
+                      color: locationManager.getLocationAt(i).getColor(),
+                    ),
                   ),
+                  Padding(padding: const EdgeInsets.all(4.0)),
                   Expanded(
                     child: Text(
                       locationManager.getLocationAt(i).getName(),
