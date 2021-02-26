@@ -28,7 +28,7 @@ dependencies:
   shared_preferences: ^0.5.10
   google_place: ^0.3.3
   geocoder: ^0.2.1
-  google_maps_flutter: ^0.5.32
+  google_maps_flutter: ^1.2.0
 
 dev_dependencies:
   flutter_test:

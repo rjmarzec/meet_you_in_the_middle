@@ -114,11 +114,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildMapPage() {
-    return Container(
-      child: Center(
-        child: Text("map"),
-      ),
-    );
+    return MapPage();
   }
 
   FloatingActionButton _buildAddLocationButton() {
