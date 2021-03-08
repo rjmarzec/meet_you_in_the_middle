@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'location_manager.dart';
@@ -22,6 +23,10 @@ class MapPageState extends State<MapPage> {
 
   void _getMapController(GoogleMapController controller) {
     mapController = controller;
+
+    CameraUpdate boundZoom =
+        CameraUpdate.newLatLngBounds(_getBoundCoordinates(1.15), 0);
+    this.mapController.animateCamera(boundZoom);
   }
 
   @override
@@ -78,7 +83,7 @@ class MapPageState extends State<MapPage> {
       mapType: _currentMapType,
       initialCameraPosition: CameraPosition(
         target: _midpointCoordinates,
-        zoom: 11.0,
+        zoom: 0,
       ),
     );
   }
@@ -108,6 +113,42 @@ class MapPageState extends State<MapPage> {
       return LatLng(totalLat / locationCount, totalLong / locationCount);
     }
     return LatLng(0, 0);
+  }
+
+  LatLngBounds _getBoundCoordinates(double boundScale) {
+    // set dummy values for the min and max that will be overwritten by any
+    // other larger/smaller values as we start to calculate the mins and maxs
+    double minLat = 90;
+    double maxLat = -90;
+    double minLong = 180;
+    double maxLong = -180;
+
+    // store the number of locations we have to loop through
+    int locationCount = locationManager.locationCount();
+
+    // loop through all the locations and record the min and max lats and longs
+    for (int i = 0; i < locationCount; i++) {
+      // get the next location
+      Location currentLocation = locationManager.getLocationAt(i);
+
+      // update our mins and maxs if they need to be
+      minLat = min(minLat, currentLocation.getCoordinates().latitude);
+      maxLat = max(maxLat, currentLocation.getCoordinates().latitude);
+      minLong = min(minLong, currentLocation.getCoordinates().longitude);
+      maxLong = max(maxLong, currentLocation.getCoordinates().longitude);
+    }
+
+    // rescale the bounds by the passed in scalar
+    minLat -= (boundScale - 1) * (maxLong - minLong).abs();
+    maxLat += (boundScale - 1) * (maxLong - minLong).abs();
+    minLong -= (boundScale - 1) * (maxLat - minLat).abs();
+    maxLong += (boundScale - 1) * (maxLat - minLat).abs();
+
+    // return the LatLngBounds built from the corners we found
+    return LatLngBounds(
+      northeast: LatLng(maxLat, maxLong),
+      southwest: LatLng(minLat, minLong),
+    );
   }
 
   Marker _buildCenterMarker(LatLng coordinates) {
@@ -149,7 +190,6 @@ class MapPageState extends State<MapPage> {
         child: FloatingActionButton(
           onPressed: () => _swapMapType(),
           materialTapTargetSize: MaterialTapTargetSize.padded,
-          backgroundColor: Colors.green,
           child: const Icon(Icons.map, size: 36.0),
         ),
       ),

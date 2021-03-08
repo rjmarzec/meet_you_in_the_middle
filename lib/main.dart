@@ -119,7 +119,6 @@ class _HomePageState extends State<HomePage> {
 
   FloatingActionButton _buildAddLocationButton() {
     return FloatingActionButton(
-      backgroundColor: Colors.teal,
       child: Icon(Icons.add),
       onPressed: () {
         showDialog(
