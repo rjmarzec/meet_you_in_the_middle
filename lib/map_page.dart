@@ -23,10 +23,7 @@ class MapPageState extends State<MapPage> {
 
   void _getMapController(GoogleMapController controller) {
     mapController = controller;
-
-    CameraUpdate boundZoom =
-        CameraUpdate.newLatLngBounds(_getBoundCoordinates(1.15), 0);
-    this.mapController.animateCamera(boundZoom);
+    _resetMapZoom();
   }
 
   @override
@@ -40,6 +37,7 @@ class MapPageState extends State<MapPage> {
       return Stack(children: <Widget>[
         _buildGoogleMap(),
         _buildSwapMapTypeButton(),
+        _buildResetMapZoomButton()
       ]);
     }
   }
@@ -151,14 +149,6 @@ class MapPageState extends State<MapPage> {
     );
   }
 
-  Marker _buildCenterMarker(LatLng coordinates) {
-    return Marker(
-      markerId: MarkerId("Midpoint"),
-      infoWindow: InfoWindow(title: "Midpoint", snippet: '*'),
-      position: coordinates,
-    );
-  }
-
   Set<Marker> _buildLocationMarkers() {
     Set<Marker> locationMarkers = {};
     int locationCount = locationManager.locationCount();
@@ -182,6 +172,14 @@ class MapPageState extends State<MapPage> {
     return locationMarkers;
   }
 
+  Marker _buildCenterMarker(LatLng coordinates) {
+    return Marker(
+      markerId: MarkerId("Midpoint"),
+      infoWindow: InfoWindow(title: "Midpoint", snippet: '*'),
+      position: coordinates,
+    );
+  }
+
   Widget _buildSwapMapTypeButton() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -190,10 +188,33 @@ class MapPageState extends State<MapPage> {
         child: FloatingActionButton(
           onPressed: () => _swapMapType(),
           materialTapTargetSize: MaterialTapTargetSize.padded,
-          child: const Icon(Icons.map, size: 36.0),
+          child: const Icon(Icons.map, size: 32.0),
         ),
       ),
     );
+  }
+
+  Widget _buildResetMapZoomButton() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 72, 0, 0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Align(
+          alignment: Alignment.topRight,
+          child: FloatingActionButton(
+            onPressed: () => _resetMapZoom(),
+            materialTapTargetSize: MaterialTapTargetSize.padded,
+            child: const Icon(Icons.zoom_out_map, size: 32.0),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _resetMapZoom() {
+    CameraUpdate boundZoom =
+        CameraUpdate.newLatLngBounds(_getBoundCoordinates(1.15), 0);
+    this.mapController.animateCamera(boundZoom);
   }
 
   void _swapMapType() {
