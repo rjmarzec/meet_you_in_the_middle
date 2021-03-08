@@ -1,20 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:meet_you_in_the_middle/app_info_dialog.dart';
 import 'package:meet_you_in_the_middle/clear_locations_dialog.dart';
+import 'package:meet_you_in_the_middle/pick_color_dialog.dart';
 import 'location_manager.dart';
 import 'location_page.dart';
 import 'map_page.dart';
 import 'add_location_dialog.dart';
+import 'package:dynamic_color_theme/dynamic_color_theme.dart';
 
 void main() => runApp(Home());
 
 class Home extends StatelessWidget {
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(fontFamily: 'Roboto'),
-      home: HomePage(),
+    return DynamicColorTheme(
+      data: (Color color, bool isDark) {
+        return _buildTheme(
+          color,
+          isDark,
+        );
+      },
+      defaultColor: Colors.blue,
+      defaultIsDark: false,
+      themedWidgetBuilder: (BuildContext context, ThemeData theme) {
+        return MaterialApp(
+          home: HomePage(),
+          theme: theme,
+        );
+      },
     );
   }
+}
+
+ThemeData _buildTheme(Color color, bool isDark) {
+  return ThemeData(
+    fontFamily: 'Roboto',
+    primaryColor: color,
+    buttonTheme: ButtonThemeData(
+      buttonColor: color,
+    ),
+    iconTheme: IconThemeData(
+      color: color,
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: color,
+    ),
+  );
 }
 
 class HomePage extends StatefulWidget {
@@ -226,7 +256,7 @@ class _HomePageState extends State<HomePage> {
         showDialog(
           context: context,
           builder: (_) {
-            return Center(child: Text("temp"));
+            return PickColorDialog();
           },
         ).then((_) => setState(() {
               //Navigator.pop(context);

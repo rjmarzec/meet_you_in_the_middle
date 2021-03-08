@@ -29,6 +29,8 @@ dependencies:
   google_place: ^0.3.3
   geocoder: ^0.2.1
   google_maps_flutter: ^1.2.0
+  flutter_colorpicker: ^0.3.5
+  dynamic_color_theme: ^1.1.0
 
 dev_dependencies:
   flutter_test:
