@@ -37,7 +37,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color: Colors.blue,
+                    color: Theme.of(context).primaryColor,
                     width: 2.0,
                   ),
                 ),
@@ -49,13 +49,13 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                 ),
               ),
               onChanged: (value) {
-                setState(() {
-                  if (value.isNotEmpty) {
-                    autoCompleteSearch(value);
-                  } else {
+                if (value.isNotEmpty) {
+                  autoCompleteSearch(value);
+                } else {
+                  setState(() {
                     predictions = [];
-                  }
-                });
+                  });
+                }
               },
             ),
             _buildAutocompleteResponseList(),
@@ -80,7 +80,9 @@ class AddLocationDialogState extends State<AddLocationDialog> {
   // the predictions list once the result returns
   void autoCompleteSearch(String value) async {
     var result = await googlePlace.autocomplete.get(value);
-    predictions = result.predictions;
+    setState(() {
+      predictions = result.predictions;
+    });
   }
 
   // build a list of widgets that represent the google autocomplete search

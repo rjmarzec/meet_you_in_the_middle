@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
               children: <Widget>[
                 Icon(
                   iconIn,
-                  size: 30,
+                  size: 32,
                   color: buttonColor,
                 ),
                 Text(
