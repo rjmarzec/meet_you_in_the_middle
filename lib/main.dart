@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meet_you_in_the_middle/app_info_dialog.dart';
 import 'package:meet_you_in_the_middle/reset_locations_dialog.dart';
 import 'location_manager.dart';
 import 'location_page.dart';
@@ -224,7 +225,7 @@ class _HomePageState extends State<HomePage> {
         showDialog(
           context: context,
           builder: (_) {
-            return Center(child: Text("temp"));
+            return AppInfoDialog();
           },
         ).then((_) => setState(() {
               //Navigator.pop(context);
