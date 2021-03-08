@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meet_you_in_the_middle/app_info_dialog.dart';
-import 'package:meet_you_in_the_middle/reset_locations_dialog.dart';
+import 'package:meet_you_in_the_middle/clear_locations_dialog.dart';
 import 'location_manager.dart';
 import 'location_page.dart';
 import 'map_page.dart';
@@ -142,6 +142,7 @@ class _HomePageState extends State<HomePage> {
       child: ListView(
         children: [
           _buildDrawerHeader(),
+          _buildDrawerClearLocationsButton(),
           _buildDrawerPickColorButton(),
           _buildDrawerInfoButton(),
         ],
@@ -171,6 +172,36 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDrawerClearLocationsButton() {
+    return ListTile(
+      title: Row(
+        children: <Widget>[
+          Icon(
+            Icons.refresh,
+            size: 32,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: Text(
+              "Reset Location list",
+              style: TextStyle(fontSize: 16),
+            ),
+          )
+        ],
+      ),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (_) {
+            return ClearLocationsDialog();
+          },
+        ).then((_) => setState(() {
+              Navigator.pop(context);
+            }));
+      },
     );
   }
 
@@ -294,7 +325,7 @@ class _HomePageState extends State<HomePage> {
         showDialog(
           context: context,
           builder: (_) {
-            return ResetLocationsDialog();
+            return ClearLocationsDialog();
           },
         ).then((_) => setState(() {}));
       },

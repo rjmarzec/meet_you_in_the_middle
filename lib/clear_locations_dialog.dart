@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:meet_you_in_the_middle/location_manager.dart';
 
-class ResetLocationsDialog extends StatefulWidget {
+class ClearLocationsDialog extends StatefulWidget {
   @override
-  ResetLocationsDialogState createState() => new ResetLocationsDialogState();
+  ClearLocationsDialogState createState() => new ClearLocationsDialogState();
 }
 
-class ResetLocationsDialogState extends State<ResetLocationsDialog> {
+class ClearLocationsDialogState extends State<ClearLocationsDialog> {
   // store a reference to our location manager for access later
   final LocationManager locationManager = LocationManager();
 
