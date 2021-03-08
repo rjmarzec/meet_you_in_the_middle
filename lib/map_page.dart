@@ -26,10 +26,40 @@ class MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: <Widget>[
-      _buildGoogleMap(),
-      _buildSwapMapTypeButton(),
-    ]);
+    if (locationManager.locationCount() < 2) {
+      return Stack(children: <Widget>[
+        _buildGiantMapIcon(),
+        _buildAddLocationNote(),
+      ]);
+    } else {
+      return Stack(children: <Widget>[
+        _buildGoogleMap(),
+        _buildSwapMapTypeButton(),
+      ]);
+    }
+  }
+
+  Widget _buildGiantMapIcon() {
+    return Center(
+      child: Icon(
+        Icons.map,
+        size: 256,
+        color: Colors.grey[200],
+      ),
+    );
+  }
+
+  Widget _buildAddLocationNote() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(32.0),
+        child: Text(
+          "Get started by adding a location 2 or more locations using the button below!",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+    );
   }
 
   Widget _buildGoogleMap() {
@@ -108,7 +138,6 @@ class MapPageState extends State<MapPage> {
         ),
       );
     }
-
     return locationMarkers;
   }
 

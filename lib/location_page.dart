@@ -13,10 +13,43 @@ class LocationPageState extends State<LocationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildLocationListWidgets();
+    if (locationManager.locationCount() < 1) {
+      return Stack(children: <Widget>[
+        _buildGiantPinIcon(),
+        _buildAddLocationNote(),
+      ]);
+    } else {
+      return Stack(children: <Widget>[
+        _buildGiantPinIcon(),
+        _buildLocationListWidgets(),
+      ]);
+    }
   }
 
-  // Build the main location page from a list of location widgets. For each
+  Widget _buildGiantPinIcon() {
+    return Center(
+      child: Icon(
+        Icons.location_pin,
+        size: 256,
+        color: Colors.grey[200],
+      ),
+    );
+  }
+
+  Widget _buildAddLocationNote() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(32.0),
+        child: Text(
+          "Get started by adding a location using the button below!",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+    );
+  }
+
+  // build the main location page from a list of location widgets. For each
   // location, build a list item, and separate the next item using a divider
   Widget _buildLocationListWidgets() {
     List<Widget> returnWidgetList = new List();
