@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'location_manager.dart';
+import 'location.dart';
 
 class LocationPage extends StatefulWidget {
   @override
@@ -62,33 +63,10 @@ class LocationPageState extends State<LocationPage> {
               padding: const EdgeInsets.all(8.0),
               child: new Row(
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Icon(
-                      Icons.pin_drop,
-                      size: 32,
-                      color: locationManager.getLocationAt(i).getColor(),
-                    ),
-                  ),
-                  Padding(padding: const EdgeInsets.all(4.0)),
-                  Expanded(
-                    child: Text(
-                      locationManager.getLocationAt(i).getName(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () {
-                      setState(() {
-                        locationManager.removeLocationAt(i);
-                        locationManager.publishLocationUpdate();
-                      });
-                    },
-                  ),
+                  _buildColoredPinIcon(i),
+                  _buildLocationNameText(i),
+                  _buildFavoriteLocationIconButton(i),
+                  _buildRemoveLocationIconButton(i),
                 ],
               ),
             ),
@@ -97,5 +75,57 @@ class LocationPageState extends State<LocationPage> {
       );
     }
     return ListView(children: returnWidgetList);
+  }
+
+  Widget _buildColoredPinIcon(int locationIndex) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Icon(
+        Icons.pin_drop,
+        size: 32,
+        color: locationManager.getLocationAt(locationIndex).getColor(),
+      ),
+    );
+  }
+
+  Widget _buildLocationNameText(int locationIndex) {
+    return Expanded(
+      child: Text(
+        locationManager.getLocationAt(locationIndex).getName(),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFavoriteLocationIconButton(int locationIndex) {
+    Location currentLocation = locationManager.getLocationAt(locationIndex);
+
+    Icon favoriteIcon = (currentLocation.getIsFavorite())
+        ? Icon(Icons.star)
+        : Icon(Icons.star_outline);
+
+    return IconButton(
+      icon: favoriteIcon,
+      onPressed: () {
+        setState(() {
+          locationManager.flipFavoriteAt(locationIndex);
+        });
+      },
+    );
+  }
+
+  Widget _buildRemoveLocationIconButton(int locationIndex) {
+    return IconButton(
+      icon: Icon(Icons.close),
+      onPressed: () {
+        setState(() {
+          locationManager.removeLocationAt(locationIndex);
+          locationManager.publishLocationUpdate();
+        });
+      },
+    );
   }
 }

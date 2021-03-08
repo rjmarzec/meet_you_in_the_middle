@@ -10,7 +10,8 @@ class Location {
 
   // every location has a name, a related latitude & longitude, and may be a
   // user's favorite
-  Location(String nameIn, Coordinates coordinatesIn, Color colorIn)
+  Location(String nameIn, Coordinates coordinatesIn, Color colorIn,
+      bool isFavoriteIn)
       : _name = nameIn,
         _coordinates = coordinatesIn,
         _color = colorIn,
@@ -30,6 +31,10 @@ class Location {
 
   bool getIsFavorite() {
     return _isFavorite;
+  }
+
+  void setFavorite(bool favoriteState) {
+    _isFavorite = favoriteState;
   }
 
   // convert the location to a Json string so that it can get saved using

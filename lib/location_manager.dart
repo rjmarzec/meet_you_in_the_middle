@@ -7,6 +7,7 @@ import 'location.dart';
 class LocationManager {
   static final LocationManager _instance = LocationManager._internal();
   List<Location> _locationList;
+  Set<String> _favoritesSet;
   SharedPreferences _prefs;
 
   // store a void callback that we can call to tell main to update the page it
@@ -30,15 +31,16 @@ class LocationManager {
   // to come back with those locations
   Future<bool> loadSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
-    print("\tSHARED PREFS LOADED");
+    _loadFavorites();
+    print("\tFAVORITES SHARED PREFS LOADED");
     _loadLocations();
-    print("\tLOCATIONS LOADED FROM SHARED PREFS");
+    print("\tLOCATIONS SHARED PREFS LOADED");
     return true;
   }
 
   // pull the list of locations from SharedPreferences
   void _loadLocations() {
-    String prefsResult = _prefs.getString('locations');
+    String prefsResult = _prefs.getString("locations");
     if (prefsResult != null) {
       Iterable l = json.decode(prefsResult);
       _locationList = (l as List).map((i) => Location.fromJson(i)).toList();
@@ -47,16 +49,30 @@ class LocationManager {
     }
   }
 
+  void _loadFavorites() {
+    List<String> _prefsResult = _prefs.getStringList("favorites");
+
+    if (_prefsResult != null) {
+      _favoritesSet = _prefsResult.toSet();
+    } else {
+      _favoritesSet = {};
+    }
+  }
+
   Future addLocation(String locationName) async {
     // use a geocoder to get coordinates for the addresses users enter
     var addresses = await Geocoder.local.findAddressesFromQuery(locationName);
     Coordinates addressCoordinates = addresses.first.coordinates;
-    Location newLocation = Location(locationName, addressCoordinates,
-        _colorFromCoordinates(addressCoordinates));
+    Location newLocation = Location(
+        locationName,
+        addressCoordinates,
+        _colorFromCoordinates(addressCoordinates),
+        _favoritesSet.contains(locationName));
 
     // once the location is constructed, add it to the location list and then
     // update the stored shared preferences
     _locationList.add(newLocation);
+    _refreshFavorites();
     _saveLocations();
   }
 
@@ -74,6 +90,7 @@ class LocationManager {
 
   void _saveLocations() {
     _prefs.setString('locations', json.encode(_locationList));
+    _prefs.setStringList('favorites', _favoritesSet.toList());
   }
 
   int locationCount() {
@@ -82,6 +99,23 @@ class LocationManager {
 
   Location getLocationAt(int index) {
     return _locationList[index];
+  }
+
+  void flipFavoriteAt(int index) {
+    if (_locationList[index].getIsFavorite() == true) {
+      _favoritesSet.remove(_locationList[index].getName());
+    } else {
+      _favoritesSet.add(_locationList[index].getName());
+    }
+    _refreshFavorites();
+    _saveLocations();
+  }
+
+  void _refreshFavorites() {
+    for (int i = 0; i < _locationList.length; i++) {
+      _locationList[i]
+          .setFavorite(_favoritesSet.contains(_locationList[i].getName()));
+    }
   }
 
   void removeLocationAt(int index) {
