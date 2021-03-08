@@ -21,9 +21,14 @@ class MapPageState extends State<MapPage> {
   // store the map type so that the user can change it as they want
   MapType _currentMapType = MapType.normal;
 
+  // store the midpoint markers and coords so we can access them from anywhere
+  Marker _midpointMarker;
+  LatLng _midpointCoordinates;
+
   void _getMapController(GoogleMapController controller) {
     mapController = controller;
-    _resetMapZoom();
+
+    _resetMap(false);
   }
 
   @override
@@ -67,12 +72,13 @@ class MapPageState extends State<MapPage> {
 
   Widget _buildGoogleMap() {
     // first, figure out where our center should be
-    LatLng _midpointCoordinates = _getMidpointCoordinates();
+    _midpointCoordinates = _getMidpointCoordinates();
 
     // build the set of markers from the stored locations, and then add the
     // midpoint marker as well
     Set<Marker> locationMarkers = _buildLocationMarkers();
-    locationMarkers.add(_buildCenterMarker(_midpointCoordinates));
+    _midpointMarker = _buildMidpointMarker(_midpointCoordinates);
+    locationMarkers.add(_midpointMarker);
 
     // build the map
     return GoogleMap(
@@ -142,10 +148,22 @@ class MapPageState extends State<MapPage> {
     minLong -= (boundScale - 1) * (maxLat - minLat).abs();
     maxLong += (boundScale - 1) * (maxLat - minLat).abs();
 
-    // return the LatLngBounds built from the corners we found
+    // compute the differences between the midpoint and min/max lats/longs
+    double minLatDistance = (_midpointCoordinates.latitude - minLat).abs();
+    double maxLatDistance = (_midpointCoordinates.latitude - maxLat).abs();
+    double minLongDistance = (_midpointCoordinates.longitude - minLong).abs();
+    double maxLongDistance = (_midpointCoordinates.longitude - maxLong).abs();
+
+    // get the offset from the midpoint that all contain all the points
+    double midpointLatOffset = max(minLatDistance, maxLatDistance);
+    double midpointLongOffset = max(minLongDistance, maxLongDistance);
+
+    // return the LatLngBounds built from the corners of the bounds we want
     return LatLngBounds(
-      northeast: LatLng(maxLat, maxLong),
-      southwest: LatLng(minLat, minLong),
+      northeast: LatLng(_midpointCoordinates.latitude + midpointLatOffset,
+          _midpointCoordinates.longitude + midpointLongOffset),
+      southwest: LatLng(_midpointCoordinates.latitude - midpointLatOffset,
+          _midpointCoordinates.longitude - midpointLongOffset),
     );
   }
 
@@ -160,8 +178,7 @@ class MapPageState extends State<MapPage> {
       locationMarkers.add(
         Marker(
           markerId: MarkerId(currentLocation.getName()),
-          infoWindow:
-              InfoWindow(title: currentLocation.getName(), snippet: '*'),
+          infoWindow: InfoWindow(title: currentLocation.getName()),
           position: LatLng(currentLocation.getCoordinates().latitude,
               currentLocation.getCoordinates().longitude),
           icon: BitmapDescriptor.defaultMarkerWithHue(
@@ -172,7 +189,7 @@ class MapPageState extends State<MapPage> {
     return locationMarkers;
   }
 
-  Marker _buildCenterMarker(LatLng coordinates) {
+  Marker _buildMidpointMarker(LatLng coordinates) {
     return Marker(
       markerId: MarkerId("Midpoint"),
       infoWindow: InfoWindow(title: "Midpoint", snippet: '*'),
@@ -202,7 +219,7 @@ class MapPageState extends State<MapPage> {
         child: Align(
           alignment: Alignment.topRight,
           child: FloatingActionButton(
-            onPressed: () => _resetMapZoom(),
+            onPressed: () => _resetMap(true),
             materialTapTargetSize: MaterialTapTargetSize.padded,
             child: const Icon(Icons.zoom_out_map, size: 32.0),
           ),
@@ -211,10 +228,21 @@ class MapPageState extends State<MapPage> {
     );
   }
 
-  void _resetMapZoom() {
+  void _resetMap(bool animated) {
+    // display the midpoint's marker information
+    mapController.showMarkerInfoWindow(_midpointMarker.markerId);
+
+    // reset the bounds to center around the midpoint and show all the points
     CameraUpdate boundZoom =
         CameraUpdate.newLatLngBounds(_getBoundCoordinates(1.15), 0);
-    this.mapController.animateCamera(boundZoom);
+
+    // based on when we call this function, choose between animating the
+    // camera movement or instantly jumping there
+    if (animated) {
+      mapController.animateCamera(boundZoom);
+    } else {
+      mapController.moveCamera(boundZoom);
+    }
   }
 
   void _swapMapType() {
