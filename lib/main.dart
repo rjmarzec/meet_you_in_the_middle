@@ -99,6 +99,7 @@ class _HomePageState extends State<HomePage> {
           _buildLocationResetButton(),
         ],
       ),
+      drawer: _buildAppDrawer(),
       body: _buildSelectedPage(),
       floatingActionButton: _buildAddLocationButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -131,6 +132,103 @@ class _HomePageState extends State<HomePage> {
             return AddLocationDialog();
           },
         ).then((_) => setState(() {}));
+      },
+    );
+  }
+
+  Drawer _buildAppDrawer() {
+    return Drawer(
+      child: ListView(
+        children: [
+          _buildDrawerHeader(),
+          _buildDrawerPickColorButton(),
+          _buildDrawerInfoButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerHeader() {
+    return DrawerHeader(
+      margin: EdgeInsets.zero,
+      padding: EdgeInsets.zero,
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor,
+      ),
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+            bottom: 12.0,
+            left: 16.0,
+            child: Text(
+              "Options",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerPickColorButton() {
+    return ListTile(
+      title: Row(
+        children: <Widget>[
+          Icon(
+            Icons.format_paint,
+            size: 32,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: Text(
+              "Change App Color",
+              style: TextStyle(fontSize: 16),
+            ),
+          )
+        ],
+      ),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (_) {
+            return Center(child: Text("temp"));
+          },
+        ).then((_) => setState(() {
+              //Navigator.pop(context);
+            }));
+      },
+    );
+  }
+
+  Widget _buildDrawerInfoButton() {
+    return ListTile(
+      title: Row(
+        children: <Widget>[
+          Icon(
+            Icons.info,
+            size: 32,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: Text(
+              "App Information",
+              style: TextStyle(fontSize: 16),
+            ),
+          )
+        ],
+      ),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (_) {
+            return Center(child: Text("temp"));
+          },
+        ).then((_) => setState(() {
+              //Navigator.pop(context);
+            }));
       },
     );
   }
