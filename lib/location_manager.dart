@@ -88,4 +88,9 @@ class LocationManager {
     _locationList.removeAt(index);
     _saveLocations();
   }
+
+  void clearLocations() {
+    _locationList = [];
+    _saveLocations();
+  }
 }

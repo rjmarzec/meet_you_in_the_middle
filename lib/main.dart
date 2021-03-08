@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meet_you_in_the_middle/reset_locations_dialog.dart';
 import 'location_manager.dart';
 import 'location_page.dart';
 import 'map_page.dart';
@@ -94,6 +95,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Meet You In the Middle'),
+        actions: [
+          _buildLocationResetButton(),
+        ],
       ),
       body: _buildSelectedPage(),
       floatingActionButton: _buildAddLocationButton(),
@@ -178,6 +182,23 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLocationResetButton() {
+    return IconButton(
+      icon: Icon(
+        Icons.refresh,
+        size: 32.0,
+      ),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (_) {
+            return ResetLocationsDialog();
+          },
+        ).then((_) => setState(() {}));
+      },
     );
   }
 
