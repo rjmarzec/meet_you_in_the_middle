@@ -150,8 +150,9 @@ class _HomePageState extends State<HomePage> {
   // builds button on the bottom app bar used to navigate between the pages.
   // button look and settings are specified by the input parameters
   Widget _buildBottomAppBarButton(IconData iconIn, String textIn, int indexIn) {
-    Color buttonColor =
-        (_bottomNavBarIndex == indexIn) ? Colors.orange[600] : Colors.grey[900];
+    Color buttonColor = (_bottomNavBarIndex == indexIn)
+        ? Theme.of(context).primaryColor
+        : Colors.grey[900];
     return Expanded(
       child: SizedBox(
         height: 60,
