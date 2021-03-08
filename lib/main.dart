@@ -169,11 +169,12 @@ class _HomePageState extends State<HomePage> {
 
   Drawer _buildAppDrawer() {
     return Drawer(
-      child: ListView(
+      child: Column(
         children: [
           _buildDrawerHeader(),
           _buildDrawerClearLocationsButton(),
           _buildDrawerPickColorButton(),
+          Expanded(child: Container()),
           _buildDrawerInfoButton(),
         ],
       ),
