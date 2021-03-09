@@ -18,6 +18,10 @@ class AddLocationDialogState extends State<AddLocationDialog> {
   // command as necessary
   TextEditingController _textFieldController = TextEditingController();
 
+  // keep track of whether or not we are currently displaying autocomplete
+  // suggestions
+  bool displayingPredictions = false;
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -50,9 +54,11 @@ class AddLocationDialogState extends State<AddLocationDialog> {
               ),
               onChanged: (value) {
                 if (value.isNotEmpty) {
+                  displayingPredictions = true;
                   autoCompleteSearch(value);
                 } else {
                   setState(() {
+                    displayingPredictions = false;
                     predictions = [];
                   });
                 }
@@ -62,7 +68,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                FlatButton(
+                TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -80,31 +86,85 @@ class AddLocationDialogState extends State<AddLocationDialog> {
   // the predictions list once the result returns
   void autoCompleteSearch(String value) async {
     var result = await googlePlace.autocomplete.get(value);
-    setState(() {
-      predictions = result.predictions;
-    });
+    if (displayingPredictions) {
+      setState(() {
+        predictions = result.predictions;
+      });
+    }
   }
 
   // build a list of widgets that represent the google autocomplete search
   // results taken from the predictions list
   Widget _buildAutocompleteResponseList() {
-    List<Widget> returnWidgetList = new List<Widget>();
-    for (int i = 0; i < predictions.length; i++) {
-      String locationName = predictions[i].description;
-      returnWidgetList.add(OutlineButton(
-        child: Text(
-          locationName,
-          textAlign: TextAlign.center,
-        ),
-        onPressed: () {
-          setState(() {
-            locationManager.addLocation(locationName);
-            _textFieldController.clear();
-            predictions = [];
-          });
+    if (displayingPredictions) {
+      return ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemCount: predictions.length,
+        itemBuilder: (context, index) {
+          String locationName = predictions[index].description;
+          return ButtonTheme(
+            minWidth: 300,
+            child: OutlinedButton(
+              child: Text(
+                locationName,
+                textAlign: TextAlign.center,
+              ),
+              onPressed: () {
+                setState(() {
+                  locationManager.addLocation(locationName).then((value) => () {
+                        _textFieldController.clear();
+                        predictions = [];
+                      });
+                });
+              },
+            ),
+          );
         },
-      ));
+      );
+    } else {
+      return ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemCount: locationManager.favoritesCount() + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return ButtonTheme(
+              minWidth: 300,
+              child: OutlinedButton(
+                child: Text(
+                  "Current Location",
+                  textAlign: TextAlign.center,
+                ),
+                onPressed: () {
+                  setState(() {
+                    locationManager.addCurrentLocation();
+                    predictions = [];
+                  });
+                },
+              ),
+            );
+          } else {
+            String locationName = locationManager.getFavoriteAt(index - 1);
+            return ButtonTheme(
+              minWidth: 300,
+              child: OutlinedButton(
+                child: Text(
+                  locationName,
+                  textAlign: TextAlign.center,
+                ),
+                onPressed: () {
+                  setState(() {
+                    locationManager.addLocation(locationName);
+                    _textFieldController.clear();
+                    predictions = [];
+                  });
+                },
+              ),
+            );
+          }
+        },
+      );
     }
-    return Column(children: returnWidgetList);
   }
 }

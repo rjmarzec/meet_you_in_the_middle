@@ -7,6 +7,7 @@ import 'location_page.dart';
 import 'map_page.dart';
 import 'add_location_dialog.dart';
 import 'package:dynamic_color_theme/dynamic_color_theme.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(Home());
 
@@ -14,10 +15,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return DynamicColorTheme(
       data: (Color color, bool isDark) {
-        return _buildTheme(
-          color,
-          isDark,
-        );
+        return _buildTheme(color, false);
       },
       defaultColor: Colors.blue,
       defaultIsDark: false,
@@ -35,6 +33,7 @@ ThemeData _buildTheme(Color color, bool isDark) {
   return ThemeData(
     fontFamily: 'Roboto',
     primaryColor: color,
+    brightness: (isDark) ? Brightness.dark : Brightness.light,
     buttonTheme: ButtonThemeData(
       buttonColor: color,
     ),
@@ -43,6 +42,16 @@ ThemeData _buildTheme(Color color, bool isDark) {
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: color,
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        primary: Colors.black,
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        primary: Colors.black,
+      ),
     ),
   );
 }
@@ -125,6 +134,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildApp() {
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.dark,
         title: Text('Meet You In the Middle'),
         actions: [
           _buildLocationResetButton(),
@@ -172,6 +182,7 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         children: [
           _buildDrawerHeader(),
+          _buildDrawerAddLocationButton(),
           _buildDrawerClearLocationsButton(),
           _buildDrawerPickColorButton(),
           Expanded(child: Container()),
@@ -206,6 +217,36 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildDrawerAddLocationButton() {
+    return ListTile(
+      title: Row(
+        children: <Widget>[
+          Icon(
+            Icons.pin_drop,
+            size: 32,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 8.0),
+            child: Text(
+              "Add Location",
+              style: TextStyle(fontSize: 16),
+            ),
+          )
+        ],
+      ),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (_) {
+            return AddLocationDialog();
+          },
+        ).then((_) => setState(() {
+              Navigator.pop(context);
+            }));
+      },
+    );
+  }
+
   Widget _buildDrawerClearLocationsButton() {
     return ListTile(
       title: Row(
@@ -217,7 +258,7 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: EdgeInsets.only(left: 8.0),
             child: Text(
-              "Reset Location list",
+              "Clear Location List",
               style: TextStyle(fontSize: 16),
             ),
           )
