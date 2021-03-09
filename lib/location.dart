@@ -6,16 +6,18 @@ class Location {
   final String _name;
   final Coordinates _coordinates;
   final Color _color;
+  final bool _canFavorite;
   bool _isFavorite;
 
   // every location has a name, a related latitude & longitude, and may be a
   // user's favorite
   Location(String nameIn, Coordinates coordinatesIn, Color colorIn,
-      bool isFavoriteIn)
+      bool canFavoriteIn, bool isFavoriteIn)
       : _name = nameIn,
         _coordinates = coordinatesIn,
         _color = colorIn,
-        _isFavorite = false;
+        _canFavorite = canFavoriteIn,
+        _isFavorite = isFavoriteIn;
 
   String getName() {
     return _name;
@@ -27,6 +29,10 @@ class Location {
 
   Color getColor() {
     return _color;
+  }
+
+  bool getCanFavorite() {
+    return _canFavorite;
   }
 
   bool getIsFavorite() {
@@ -46,6 +52,7 @@ class Location {
         'colorRed': _color.red,
         'colorGreen': _color.green,
         'colorBlue': _color.blue,
+        'canFavorite': _canFavorite,
         'isFavorite': _isFavorite
       };
 
@@ -56,5 +63,6 @@ class Location {
         _coordinates = Coordinates(json['latitude'], json['longitude']),
         _color = Color.fromRGBO(
             json['colorRed'], json['colorGreen'], json['colorBlue'], 1.0),
+        _canFavorite = json['canFavorite'],
         _isFavorite = json['isFavorite'];
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meet_you_in_the_middle/location_manager.dart';
 import 'api_keys.dart';
 import 'package:google_place/google_place.dart';
+import 'package:geolocator/geolocator.dart';
 
 class AddLocationDialog extends StatefulWidget {
   @override
@@ -70,7 +71,9 @@ class AddLocationDialogState extends State<AddLocationDialog> {
               children: <Widget>[
                 TextButton(
                   onPressed: () {
+                    FocusScope.of(context).unfocus();
                     Navigator.pop(context);
+                    locationManager.publishMapZoomUpdate();
                   },
                   child: Text('Done'),
                 )
@@ -112,10 +115,14 @@ class AddLocationDialogState extends State<AddLocationDialog> {
               ),
               onPressed: () {
                 setState(() {
-                  locationManager.addLocation(locationName).then((value) => () {
-                        _textFieldController.clear();
-                        predictions = [];
-                      });
+                  setState(() {
+                    displayingPredictions = false;
+                    _textFieldController.clear();
+                    predictions = [];
+                  });
+                  locationManager
+                      .addLocation(locationName)
+                      .then((_) => setState);
                 });
               },
             ),
@@ -129,20 +136,33 @@ class AddLocationDialogState extends State<AddLocationDialog> {
         itemCount: locationManager.favoritesCount() + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
-            return ButtonTheme(
-              minWidth: 300,
-              child: OutlinedButton(
-                child: Text(
-                  "Current Location",
-                  textAlign: TextAlign.center,
-                ),
-                onPressed: () {
-                  setState(() {
-                    locationManager.addCurrentLocation();
-                    predictions = [];
-                  });
-                },
-              ),
+            return FutureBuilder<LocationPermission>(
+              future: Geolocator.checkPermission(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<LocationPermission> snapshot) {
+                // while we wait for the shared preferences to load,
+                if (snapshot.data == LocationPermission.deniedForever) {
+                  return Container();
+                } else if (snapshot.hasError) {
+                  return Container();
+                } else {
+                  return ButtonTheme(
+                    minWidth: 300,
+                    child: OutlinedButton(
+                      child: Text(
+                        "Current Location",
+                        textAlign: TextAlign.center,
+                      ),
+                      onPressed: () {
+                        predictions = [];
+                        setState(() {
+                          locationManager.addCurrentLocation();
+                        });
+                      },
+                    ),
+                  );
+                }
+              },
             );
           } else {
             String locationName = locationManager.getFavoriteAt(index - 1);
@@ -155,10 +175,12 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                 ),
                 onPressed: () {
                   setState(() {
-                    locationManager.addLocation(locationName);
                     _textFieldController.clear();
                     predictions = [];
                   });
+                  locationManager
+                      .addLocation(locationName)
+                      .then((_) => setState);
                 },
               ),
             );

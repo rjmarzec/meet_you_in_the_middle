@@ -33,6 +33,8 @@ class MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
+    locationManager.publishMapZoomUpdate = _updateMapZoomCallback;
+
     if (locationManager.locationCount() < 2) {
       return Stack(children: <Widget>[
         _buildGiantMapIcon(),
@@ -143,10 +145,10 @@ class MapPageState extends State<MapPage> {
     }
 
     // rescale the bounds by the passed in scalar
-    minLat -= (boundScale - 1) * (maxLong - minLong).abs();
-    maxLat += (boundScale - 1) * (maxLong - minLong).abs();
-    minLong -= (boundScale - 1) * (maxLat - minLat).abs();
-    maxLong += (boundScale - 1) * (maxLat - minLat).abs();
+    minLat -= (boundScale - 1) * (maxLat - minLat).abs();
+    maxLat += (boundScale - 1) * (maxLat - minLat).abs();
+    minLong -= (boundScale - 1) * (maxLong - minLong).abs();
+    maxLong += (boundScale - 1) * (maxLong - minLong).abs();
 
     // compute the differences between the midpoint and min/max lats/longs
     double minLatDistance = (_midpointCoordinates.latitude - minLat).abs();
@@ -251,5 +253,9 @@ class MapPageState extends State<MapPage> {
           ? MapType.satellite
           : MapType.normal;
     });
+  }
+
+  void _updateMapZoomCallback() {
+    _resetMap(true);
   }
 }

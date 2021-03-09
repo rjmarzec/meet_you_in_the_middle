@@ -53,28 +53,27 @@ class LocationPageState extends State<LocationPage> {
   // build the main location page from a list of location widgets. For each
   // location, build a list item, and separate the next item using a divider
   Widget _buildLocationListWidgets() {
-    List<Widget> returnWidgetList = new List();
-    for (int i = 0; i < locationManager.locationCount(); i++) {
-      returnWidgetList.add(
-        Padding(
+    return ListView.builder(
+      itemCount: locationManager.locationCount(),
+      itemBuilder: (context, index) {
+        return Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0.0),
           child: Card(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: new Row(
                 children: <Widget>[
-                  _buildColoredPinIcon(i),
-                  _buildLocationNameText(i),
-                  _buildFavoriteLocationIconButton(i),
-                  _buildRemoveLocationIconButton(i),
+                  _buildColoredPinIcon(index),
+                  _buildLocationNameText(index),
+                  _buildFavoriteLocationIconButton(index),
+                  _buildRemoveLocationIconButton(index),
                 ],
               ),
             ),
           ),
-        ),
-      );
-    }
-    return ListView(children: returnWidgetList);
+        );
+      },
+    );
   }
 
   Widget _buildColoredPinIcon(int locationIndex) {
@@ -102,6 +101,10 @@ class LocationPageState extends State<LocationPage> {
 
   Widget _buildFavoriteLocationIconButton(int locationIndex) {
     Location currentLocation = locationManager.getLocationAt(locationIndex);
+
+    if (!currentLocation.getCanFavorite()) {
+      return Container();
+    }
 
     Icon favoriteIcon = (currentLocation.getIsFavorite())
         ? Icon(Icons.star)

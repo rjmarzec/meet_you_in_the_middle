@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geocoder/geocoder.dart';
 import 'dart:convert';
 import 'location.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LocationManager {
   static final LocationManager _instance = LocationManager._internal();
@@ -11,8 +12,10 @@ class LocationManager {
   SharedPreferences _prefs;
 
   // store a void callback that we can call to tell main to update the page it
-  // is displaying as our location list gets updated
+  // is displaying as our location list gets updated, and to tell our map to
+  // reset the zoom every time we get a new location
   VoidCallback publishLocationUpdate;
+  VoidCallback publishMapZoomUpdate;
 
   // we use a singleton pattern for our location manager here so that all of
   // our location-related needs can refer back to the same place without
@@ -67,13 +70,35 @@ class LocationManager {
         locationName,
         addressCoordinates,
         _colorFromCoordinates(addressCoordinates),
+        true,
         _favoritesSet.contains(locationName));
 
     // once the location is constructed, add it to the location list and then
     // update the stored shared preferences
     _locationList.add(newLocation);
-    _refreshFavorites();
     _saveLocations();
+    publishLocationUpdate();
+  }
+
+  Future addCurrentLocation() async {
+    // use a geocoder to get coordinates for the addresses users enter
+    var currentPosition = await Geolocator.getCurrentPosition();
+    Coordinates addressCoordinates =
+        Coordinates(currentPosition.latitude, currentPosition.longitude);
+    Location newLocation = Location(
+      "Current Location",
+      addressCoordinates,
+      _colorFromCoordinates(addressCoordinates),
+      false,
+      false,
+    );
+
+    // once the location is constructed, add it to the location list and then
+    // update the stored shared preferences
+    _locationList.add(newLocation);
+    _saveLocations();
+    publishLocationUpdate();
+    publishMapZoomUpdate();
   }
 
   Color _colorFromCoordinates(Coordinates coordinates) {
@@ -90,6 +115,9 @@ class LocationManager {
 
   void _saveLocations() {
     _prefs.setString('locations', json.encode(_locationList));
+  }
+
+  void _saveFavorites() {
     _prefs.setStringList('favorites', _favoritesSet.toList());
   }
 
@@ -97,8 +125,16 @@ class LocationManager {
     return _locationList.length;
   }
 
+  int favoritesCount() {
+    return _favoritesSet.length;
+  }
+
   Location getLocationAt(int index) {
     return _locationList[index];
+  }
+
+  String getFavoriteAt(int index) {
+    return _favoritesSet.elementAt(index);
   }
 
   void flipFavoriteAt(int index) {
@@ -108,7 +144,7 @@ class LocationManager {
       _favoritesSet.add(_locationList[index].getName());
     }
     _refreshFavorites();
-    _saveLocations();
+    _saveFavorites();
   }
 
   void _refreshFavorites() {

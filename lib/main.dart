@@ -172,7 +172,10 @@ class _HomePageState extends State<HomePage> {
           builder: (_) {
             return AddLocationDialog();
           },
-        ).then((_) => setState(() {}));
+        ).then((_) => setState(() {
+              FocusScope.of(context).unfocus();
+              locationManager.publishMapZoomUpdate();
+            }));
       },
     );
   }
