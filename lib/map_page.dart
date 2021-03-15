@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'location_manager.dart';
 import 'location.dart';
 
@@ -193,9 +194,34 @@ class MapPageState extends State<MapPage> {
   Marker _buildMidpointMarker(LatLng coordinates) {
     return Marker(
       markerId: MarkerId("Midpoint"),
-      infoWindow: InfoWindow(title: "Midpoint", snippet: '*'),
+      icon: BitmapDescriptor.defaultMarkerWithHue(_getAverageHue()),
+      infoWindow: InfoWindow(
+          title: "Midpoint", snippet: 'Tap to open me in Google Maps!'),
       position: coordinates,
+      onTap: () {
+        _launchGoogleMaps(coordinates.latitude, coordinates.longitude);
+      },
     );
+  }
+
+  void _launchGoogleMaps(double latitude, double longitude) async {
+    String googleUrl =
+        'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
+    if (await canLaunch(googleUrl)) {
+      await launch(googleUrl);
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Could not open Google Maps")));
+      throw 'Could Not Open The Map';
+    }
+  }
+
+  double _getAverageHue() {
+    double hueSum = 0;
+    for (int i = 0; i < locationManager.locationCount(); i++) {
+      hueSum += locationManager.getLocationAt(i).getHue();
+    }
+    return hueSum / locationManager.locationCount();
   }
 
   Widget _buildSwapMapTypeButton() {
