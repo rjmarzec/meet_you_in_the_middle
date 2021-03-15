@@ -21,23 +21,23 @@ class ClearLocationsDialogState extends State<ClearLocationsDialog> {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.all(32),
-              child: Text("Clear the location list?"),
+              child: Text("Clear locations?"),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                FlatButton(
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("CANCEL"),
+                ),
+                TextButton(
                   onPressed: () {
                     locationManager.clearLocations();
                     Navigator.pop(context);
                   },
-                  child: Text("Yes"),
-                ),
-                FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("Cancel"),
+                  child: Text("YES"),
                 ),
               ],
             )

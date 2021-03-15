@@ -80,7 +80,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                     Navigator.pop(context);
                     locationManager.publishMapZoomUpdate();
                   },
-                  child: Text('Done'),
+                  child: Text('DONE'),
                 )
               ],
             )

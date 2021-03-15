@@ -17,7 +17,7 @@ class PickColorDialogState extends State<PickColorDialog> {
     currentColor = Theme.of(context).primaryColor;
 
     return AlertDialog(
-      title: const Text("Pick a color!"),
+      title: const Text("Pick a color"),
       content: BlockPicker(
         availableColors: [
           Colors.pink,
@@ -46,7 +46,7 @@ class PickColorDialogState extends State<PickColorDialog> {
       ),
       actions: <Widget>[
         TextButton(
-          child: const Text("Done"),
+          child: const Text("DONE"),
           onPressed: () {
             setState(() => currentColor = pickerColor);
             Navigator.of(context).pop();

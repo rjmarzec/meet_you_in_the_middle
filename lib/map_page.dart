@@ -196,7 +196,8 @@ class MapPageState extends State<MapPage> {
       markerId: MarkerId("Midpoint"),
       icon: BitmapDescriptor.defaultMarkerWithHue(_getAverageHue()),
       infoWindow: InfoWindow(
-          title: "Midpoint", snippet: 'Tap to open me in Google Maps!'),
+          title: "This is the midpoint!",
+          snippet: 'Tap to open it in Google Maps'),
       position: coordinates,
       onTap: () {
         _launchGoogleMaps(coordinates.latitude, coordinates.longitude);
@@ -212,7 +213,7 @@ class MapPageState extends State<MapPage> {
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Could not open Google Maps")));
-      throw 'Could Not Open The Map';
+      throw 'Could not open Google Maps';
     }
   }
 
