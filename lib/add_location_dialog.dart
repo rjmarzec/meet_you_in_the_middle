@@ -41,7 +41,6 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                     setState(() {
                       _textFieldController.clear();
                       displayingPredictions = false;
-                      predictions = [];
                     });
                   },
                   icon: Icon(Icons.clear),
@@ -66,7 +65,6 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                 } else {
                   setState(() {
                     displayingPredictions = false;
-                    predictions = [];
                   });
                 }
               },

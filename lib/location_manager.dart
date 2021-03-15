@@ -40,6 +40,7 @@ class LocationManager {
     print("\tFAVORITES SHARED PREFS LOADED");
     _loadLocations();
     print("\tLOCATIONS SHARED PREFS LOADED");
+    await Future.delayed(const Duration(milliseconds: 100));
     return true;
   }
 
