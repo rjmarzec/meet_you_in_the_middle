@@ -82,7 +82,9 @@ class LocationPageState extends State<LocationPage> {
       child: Icon(
         Icons.pin_drop,
         size: 32,
-        color: locationManager.getLocationAt(locationIndex).getColor(),
+        color: HSVColor.fromAHSV(
+                1, locationManager.getLocationAt(locationIndex).getHue(), 1, 1)
+            .toColor(),
       ),
     );
   }

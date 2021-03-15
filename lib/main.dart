@@ -96,8 +96,8 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             SizedBox(
               child: CircularProgressIndicator(),
-              width: 60,
-              height: 60,
+              width: 64,
+              height: 64,
             ),
             const Padding(
               padding: EdgeInsets.only(top: 16),
@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
             Icon(
               Icons.error_outline,
               color: Colors.red,
-              size: 60,
+              size: 64,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 16),

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geocoder/geocoder.dart';
@@ -69,7 +71,7 @@ class LocationManager {
     Location newLocation = Location(
         locationName,
         addressCoordinates,
-        _colorFromCoordinates(addressCoordinates),
+        _hueFromCoordinates(addressCoordinates),
         true,
         _favoritesSet.contains(locationName));
 
@@ -88,7 +90,7 @@ class LocationManager {
     Location newLocation = Location(
       "Current Location",
       addressCoordinates,
-      _colorFromCoordinates(addressCoordinates),
+      _hueFromCoordinates(addressCoordinates),
       false,
       false,
     );
@@ -101,16 +103,12 @@ class LocationManager {
     publishMapZoomUpdate();
   }
 
-  Color _colorFromCoordinates(Coordinates coordinates) {
+  double _hueFromCoordinates(Coordinates coordinates) {
     // to make the app more fun, each location has a unique color assigned.
-    // one way to approach this is to make an RBG codes using a sort of hash
-    // from the latitudes and longitudes of each color, computed as shown
-    double latSquared = coordinates.latitude * coordinates.latitude;
-    double longSquared = coordinates.longitude * coordinates.longitude;
-    int red = ((100 * latSquared * latSquared + 100)).round() % 160 + 16;
-    int green = ((100 * longSquared * longSquared + 100)).round() % 160 + 16;
-    int blue = ((100 * latSquared * longSquared + 100)).round() % 160 + 16;
-    return Color.fromRGBO(red, green, blue, 1.0);
+    // for consistency, we will build colors from hues, so we need to generate
+    // a unique number between 0 and 360 here
+    double latLongDifference = (coordinates.latitude - coordinates.longitude);
+    return lerpDouble(0, 360, ((latLongDifference * 10000000) % 100) / 100);
   }
 
   void _saveLocations() {

@@ -183,8 +183,7 @@ class MapPageState extends State<MapPage> {
           infoWindow: InfoWindow(title: currentLocation.getName()),
           position: LatLng(currentLocation.getCoordinates().latitude,
               currentLocation.getCoordinates().longitude),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-              HSVColor.fromColor(currentLocation.getColor()).hue),
+          icon: BitmapDescriptor.defaultMarkerWithHue(currentLocation.getHue()),
         ),
       );
     }
