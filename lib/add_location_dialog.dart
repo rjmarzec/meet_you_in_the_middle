@@ -37,7 +37,13 @@ class AddLocationDialogState extends State<AddLocationDialog> {
               decoration: InputDecoration(
                 labelText: "Search",
                 suffixIcon: IconButton(
-                  onPressed: () => _textFieldController.clear(),
+                  onPressed: () {
+                    setState(() {
+                      _textFieldController.clear();
+                      displayingPredictions = false;
+                      predictions = [];
+                    });
+                  },
                   icon: Icon(Icons.clear),
                 ),
                 focusedBorder: OutlineInputBorder(
@@ -65,6 +71,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                 }
               },
             ),
+            Divider(),
             _buildAutocompleteResponseList(),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -109,9 +116,26 @@ class AddLocationDialogState extends State<AddLocationDialog> {
           return ButtonTheme(
             minWidth: 300,
             child: OutlinedButton(
-              child: Text(
-                locationName,
-                textAlign: TextAlign.center,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.pin_drop,
+                    size: 16,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(4),
+                      child: Text(
+                        locationName,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                  ),
+                ],
               ),
               onPressed: () {
                 setState(() {
@@ -149,9 +173,26 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                   return ButtonTheme(
                     minWidth: 300,
                     child: OutlinedButton(
-                      child: Text(
-                        "Current Location",
-                        textAlign: TextAlign.center,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.person,
+                            size: 16,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.all(4),
+                              child: Text(
+                                "Current Location",
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                          ),
+                        ],
                       ),
                       onPressed: () {
                         predictions = [];
@@ -169,9 +210,26 @@ class AddLocationDialogState extends State<AddLocationDialog> {
             return ButtonTheme(
               minWidth: 300,
               child: OutlinedButton(
-                child: Text(
-                  locationName,
-                  textAlign: TextAlign.center,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.star,
+                      size: 16,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Text(
+                          locationName,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                    ),
+                  ],
                 ),
                 onPressed: () {
                   setState(() {
