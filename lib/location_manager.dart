@@ -89,7 +89,7 @@ class LocationManager {
     Coordinates addressCoordinates =
         Coordinates(currentPosition.latitude, currentPosition.longitude);
     Location newLocation = Location(
-      "Current Location",
+      "My Current Location",
       addressCoordinates,
       _hueFromCoordinates(addressCoordinates),
       false,

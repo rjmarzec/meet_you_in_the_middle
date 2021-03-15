@@ -182,7 +182,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                             child: Padding(
                               padding: EdgeInsets.all(4),
                               child: Text(
-                                "Current Location",
+                                "My Current Location",
                                 textAlign: TextAlign.center,
                               ),
                             ),
