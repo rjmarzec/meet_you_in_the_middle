@@ -63,6 +63,7 @@ class LocationManager {
     } else {
       _favoritesSet = {};
     }
+    _refreshFavorites();
   }
 
   Future addLocation(String locationName) async {
@@ -117,6 +118,7 @@ class LocationManager {
   }
 
   void _saveFavorites() {
+    print(_favoritesSet.toList());
     _prefs.setStringList('favorites', _favoritesSet.toList());
   }
 
@@ -129,6 +131,7 @@ class LocationManager {
   }
 
   Location getLocationAt(int index) {
+    _refreshFavorites();
     return _locationList[index];
   }
 
