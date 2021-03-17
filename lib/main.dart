@@ -135,7 +135,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         brightness: Brightness.dark,
-        title: Text('Meet You In the Middle'),
+        title: Text('Meet You In The Middle'),
         actions: [
           _buildLocationResetButton(),
         ],
