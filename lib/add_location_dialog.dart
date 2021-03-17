@@ -30,7 +30,6 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       content: Container(
         width: 300,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             TextField(
               controller: _textFieldController,
@@ -70,7 +69,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
               },
             ),
             Divider(),
-            _buildAutocompleteResponseList(),
+            Expanded(child: _buildAutocompleteResponseList()),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
