@@ -201,6 +201,14 @@ class _HomePageState extends State<HomePage> {
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor,
+        image: DecorationImage(
+          image: AssetImage("assets/appIconNoBackground.png"),
+          fit: BoxFit.cover,
+          colorFilter: new ColorFilter.mode(
+            Colors.white.withOpacity(0.2),
+            BlendMode.dstATop,
+          ),
+        ),
       ),
       child: Stack(
         children: <Widget>[

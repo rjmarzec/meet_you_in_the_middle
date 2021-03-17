@@ -40,6 +40,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/appIconNoBackground.png
+
   fonts:
     - family: Roboto
       fonts:
